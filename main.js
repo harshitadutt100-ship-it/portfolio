@@ -37,9 +37,14 @@ function initFromConfig() {
     el.textContent = cfg.profile.email;
     if (el.tagName === "A") el.href = `mailto:${cfg.profile.email}`;
   });
+  document.querySelectorAll(".bind-phone").forEach(el => {
+    el.textContent = cfg.profile.phone;
+    if (el.tagName === "A") el.href = `tel:${cfg.profile.phone.replace(/[^0-9+]/g, "")}`;
+  });
+  document.querySelectorAll(".bind-location").forEach(el => el.textContent = cfg.profile.location);
 
   const githubLink = document.getElementById("link-github");
-  if (githubLink) githubLink.href = `https://github.com/${cfg.profile.github}`;
+  if (githubLink) githubLink.href = cfg.profile.githubUrl || `https://github.com/${cfg.profile.github}`;
 
   const linkedinLink = document.getElementById("link-linkedin");
   if (linkedinLink && cfg.profile.linkedin) linkedinLink.href = cfg.profile.linkedin;
@@ -47,7 +52,7 @@ function initFromConfig() {
   const portraitImg = document.getElementById("hero-portrait-img");
   if (portraitImg && cfg.profile.avatarUrl) {
     portraitImg.src = cfg.profile.avatarUrl;
-    portraitImg.alt = `${cfg.profile.name} - Holographic Portrait`;
+    portraitImg.alt = `${cfg.profile.name} - Portrait`;
   }
 
   // About Telemetry binding
@@ -71,7 +76,7 @@ function initFromConfig() {
         <div class="timeline-content">
           <div class="timeline-period">${item.period}</div>
           <h3 class="timeline-degree">${item.degree}</h3>
-          <div class="timeline-institution">${item.institution}</div>
+          <div class="timeline-institution">${item.institution} — <span style="color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.85rem;">${item.score || ""}</span></div>
           <p class="timeline-desc">${item.details}</p>
           ${item.highlights ? `
             <ul class="timeline-highlights">
@@ -83,13 +88,31 @@ function initFromConfig() {
     `).join("");
   }
 
-  // Capabilities Cloud
-  const capsContainer = document.getElementById("capabilities-cloud-container");
-  if (capsContainer && cfg.capabilities) {
-    capsContainer.innerHTML = cfg.capabilities.map(cap => `
-      <div class="skill-pill">
-        <span class="skill-dot"></span>
-        <span class="skill-name">${cap.name}</span>
+  // Certifications Grid
+  const certsContainer = document.getElementById("certifications-grid-container");
+  if (certsContainer && cfg.certifications) {
+    certsContainer.innerHTML = cfg.certifications.map(cert => `
+      <div class="cert-card reveal-on-scroll is-revealed">
+        <span class="cert-badge">${cert.badge}</span>
+        <h3 class="cert-title">${cert.title}</h3>
+        <div class="cert-issuer">${cert.issuer}</div>
+        <p class="cert-details">${cert.details}</p>
+      </div>
+    `).join("");
+  }
+
+  // Categorized Skills
+  const skillsContainer = document.getElementById("capabilities-cloud-container");
+  if (skillsContainer && cfg.skillsCategorized) {
+    skillsContainer.innerHTML = cfg.skillsCategorized.map(cat => `
+      <div class="skill-category-block">
+        <div class="skill-category-title">
+          <span class="skill-dot"></span>
+          <span>${cat.category}</span>
+        </div>
+        <div class="skill-category-pills">
+          ${cat.skills.map(s => `<span class="skill-pill-tag">${s}</span>`).join("")}
+        </div>
       </div>
     `).join("");
   }
@@ -102,7 +125,7 @@ function initFromConfig() {
 }
 
 /* ==========================================================================
-   PROJECTS VIEW CONTROLLER (FLAGSHIPS VS LIVE GITHUB)
+   PROJECTS VIEW CONTROLLER (RESUME PROJECTS VS LIVE GITHUB)
    ========================================================================== */
 function initProjectsView() {
   const container = document.getElementById("projects-display-container");
@@ -112,27 +135,32 @@ function initProjectsView() {
   if (!container || !tabFlagships || !tabGithub) return;
 
   function renderFlagships() {
-    const flagships = PORTFOLIO_CONFIG.flagshipProjects || [];
-    container.innerHTML = flagships.map(project => `
+    const projects = PORTFOLIO_CONFIG.projects || [];
+    container.innerHTML = projects.map(project => `
       <div class="project-card floating-card" data-tilt="true">
         <div class="card-inner">
           <div class="card-header">
             <div class="card-meta">
-              <span class="card-index">${project.id} // FLAGSHIP</span>
-              <span class="repo-badge">${project.badge || "RESEARCH"}</span>
+              <span class="card-index">${project.id} // ${project.category.toUpperCase()}</span>
+              <span class="repo-badge">${project.badge}</span>
             </div>
             <div class="star-count">
               <span>${project.year}</span>
             </div>
           </div>
           <h3 class="card-title">${project.name}</h3>
-          <p class="card-description">${project.description}</p>
+          <p class="card-description" style="margin-bottom: 0.75rem;">${project.description}</p>
+          ${project.highlights ? `
+            <ul class="project-highlights-list">
+              ${project.highlights.map(h => `<li>${h}</li>`).join("")}
+            </ul>
+          ` : ""}
           <div class="card-footer">
             <div class="card-tech">
-              ${project.technologies.slice(0, 3).map(tech => `<span class="tech-tag">#${tech}</span>`).join(" ")}
+              ${project.technologies.slice(0, 4).map(tech => `<span class="tech-tag">#${tech}</span>`).join(" ")}
             </div>
             <a href="${project.repoUrl}" target="_blank" rel="noopener noreferrer" class="btn-card-action">
-              <span>EXPLORE</span>
+              <span>VIEW DETAILS</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="7" y1="17" x2="17" y2="7"></line>
                 <polyline points="7 7 17 7 17 17"></polyline>
