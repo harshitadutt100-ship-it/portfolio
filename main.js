@@ -3,7 +3,7 @@
  * Handles UI interactions, config rendering, Web Audio synthesis, 3D card tilt, and modals.
  */
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
   initFromConfig();
   initProjectsView();
   initIntersectionReveals();
@@ -12,7 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
   initCard3DTilt();
   initModal();
   initTelemetryClock();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
 
 /* ==========================================================================
    CONFIG BINDING & DOM HYDRATION
@@ -60,7 +66,7 @@ function initFromConfig() {
   const eduContainer = document.getElementById("education-timeline-container");
   if (eduContainer && cfg.education) {
     eduContainer.innerHTML = cfg.education.map(item => `
-      <div class="timeline-item reveal-on-scroll">
+      <div class="timeline-item reveal-on-scroll is-revealed">
         <div class="timeline-node"></div>
         <div class="timeline-content">
           <div class="timeline-period">${item.period}</div>
@@ -177,9 +183,16 @@ function initIntersectionReveals() {
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.05 });
 
-  elements.forEach(el => observer.observe(el));
+  elements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 1.1) {
+      el.classList.add("is-revealed");
+    } else {
+      observer.observe(el);
+    }
+  });
 }
 
 /* ==========================================================================
