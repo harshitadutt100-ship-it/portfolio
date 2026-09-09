@@ -18,7 +18,7 @@ const PORTFOLIO_CONFIG = {
     githubUrl: "https://github.com/harshitadutt100-ship-it",
     linkedin: "https://linkedin.com/in/harshita-dutt-47a06230a",
     status: "STATUS: AVAILABLE FOR HIRE // OPEN TO RELOCATION & REMOTE",
-    avatarUrl: "https://avatars.githubusercontent.com/u/275903745?v=4"
+    avatarUrl: "profile.jpg"
   },
 
   about: {
