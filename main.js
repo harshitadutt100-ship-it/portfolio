@@ -8,6 +8,7 @@ function init() {
   initProjectsView();
   initIntersectionReveals();
   initHeaderScroll();
+  initMobileNav();
   initAudioSystem();
   initCard3DTilt();
   initModal();
@@ -240,6 +241,52 @@ function initHeaderScroll() {
 }
 
 /* ==========================================================================
+   MOBILE NAVIGATION CONTROLLER
+   ========================================================================== */
+function initMobileNav() {
+  const toggleBtn = document.getElementById("mobile-menu-btn");
+  const navLinks = document.getElementById("site-nav-links");
+
+  if (!toggleBtn || !navLinks) return;
+
+  function toggleMenu(forceClose = false) {
+    const isOpen = forceClose ? false : !navLinks.classList.contains("mobile-open");
+    navLinks.classList.toggle("mobile-open", isOpen);
+    toggleBtn.classList.toggle("is-active", isOpen);
+    toggleBtn.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen && window.audioPlayer) {
+      window.audioPlayer.playClick();
+    }
+  }
+
+  toggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  // Close when clicking any nav link
+  navLinks.querySelectorAll(".nav-link").forEach(link => {
+    link.addEventListener("click", () => {
+      toggleMenu(true);
+    });
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (navLinks.classList.contains("mobile-open") && !navLinks.contains(e.target) && !toggleBtn.contains(e.target)) {
+      toggleMenu(true);
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navLinks.classList.contains("mobile-open")) {
+      toggleMenu(true);
+    }
+  });
+}
+
+/* ==========================================================================
    3D CARD TILT EFFECT (ZERO-G DEPTH)
    ========================================================================== */
 function initCard3DTilt() {
@@ -392,21 +439,38 @@ function initModal() {
   if (form) {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
+      const nameInput = document.getElementById("form-name");
+      const emailInput = document.getElementById("form-email");
+      const msgInput = document.getElementById("form-msg");
+
+      const name = nameInput ? nameInput.value.trim() : "";
+      const email = emailInput ? emailInput.value.trim() : "";
+      const msg = msgInput ? msgInput.value.trim() : "";
+
+      const recipient = (typeof PORTFOLIO_CONFIG !== "undefined" && PORTFOLIO_CONFIG.profile && PORTFOLIO_CONFIG.profile.email)
+        ? PORTFOLIO_CONFIG.profile.email
+        : "harshitadutt100@gmail.com";
+
+      const subject = encodeURIComponent(`Data Analyst Opportunity / Inquiry - ${name}`);
+      const body = encodeURIComponent(`Hi Harshita,\n\nName / Organization: ${name}\nEmail: ${email}\n\nOpportunity Details / Inquiry:\n${msg}`);
+      const mailtoUrl = `mailto:${recipient}?subject=${subject}&body=${body}`;
+
       const submitBtn = form.querySelector("button[type='submit']");
       if (submitBtn) {
-        submitBtn.innerHTML = "<span>TRANSMITTING...</span>";
+        submitBtn.innerHTML = "<span>TRANSMITTING DISPATCH...</span>";
         setTimeout(() => {
-          submitBtn.innerHTML = "<span>MESSAGE DISPATCHED ✓</span>";
+          window.location.href = mailtoUrl;
+          submitBtn.innerHTML = "<span>EMAIL CLIENT READY ✓</span>";
           submitBtn.style.background = "#10b981";
           submitBtn.style.borderColor = "#10b981";
           setTimeout(() => {
             closeModal();
             form.reset();
-            submitBtn.innerHTML = "<span>SEND DISPATCH</span>";
+            submitBtn.innerHTML = "<span>SEND INQUIRY</span>";
             submitBtn.style.background = "";
             submitBtn.style.borderColor = "";
-          }, 1400);
-        }, 800);
+          }, 1600);
+        }, 600);
       }
     });
   }

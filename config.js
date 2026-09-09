@@ -10,7 +10,7 @@ const PORTFOLIO_CONFIG = {
     role: "Data Analyst",
     roles: "Detail-oriented and analytical Data Analyst skilled at cleaning, analyzing, and visualizing data to uncover actionable business insights.",
     tagline: "BUSINESS INTELLIGENCE // DATA VISUALIZATION // PREDICTIVE ANALYTICS",
-    email: "harshitadutt100@email.com",
+    email: "harshitadutt100@gmail.com",
     phone: "+91-8287005542",
     location: "Delhi, India",
     availability: "Open to Relocation & Remote Opportunities",
